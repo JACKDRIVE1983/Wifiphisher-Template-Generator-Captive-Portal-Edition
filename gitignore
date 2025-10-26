@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.py[cod]
+*.log
+*.db
+.env
+*.bak
+*.swp
+*.tmp
+.DS_Store
+Thumbs.db
