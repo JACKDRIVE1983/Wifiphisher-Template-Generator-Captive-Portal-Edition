@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="image.png" alt="Tool Logo" width="400"/>
+</p>
+
 # Wifiphisher-Template-Generator-Captive-Portal-Edition
 Uno script Python stabile e collaudato per creare template personalizzati per [Wifiphisher](https://github.com/wifiphisher/wifiphisher), progettati per essere visualizzati correttamente su captive portal di dispositivi Android, iOS, macOS e Windows.
 
