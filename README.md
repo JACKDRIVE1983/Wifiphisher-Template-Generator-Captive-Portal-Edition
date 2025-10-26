@@ -2,8 +2,7 @@
 Uno script Python stabile e collaudato per creare template personalizzati per [Wifiphisher](https://github.com/wifiphisher/wifiphisher), progettati per essere visualizzati correttamente su captive portal di dispositivi Android, iOS, macOS e Windows.
 
 > ✅ Compatibile con l’ultima versione stabile di Wifiphisher  
-> ✅ Logo inline (Base64)  
-> ✅ Tastiera stabile e focus automatico  
+> ✅ Logo inline (Base64)   
 > ✅ HTML pulito e responsivo  
 > ✅ Template testati con successo in ambienti reali
 
@@ -42,9 +41,9 @@ sudo python3 genera_template_wifiphisher_v2.py
 
     Inserisci:
 
-        Nome ID del template (es: wind)
+        Nome ID del template (es: Nome Wifi)
 
-        Nome visualizzato (es: Wind - Accesso WiFi)
+        Nome visualizzato (es: Nome Wifi - Accesso WiFi)
 
         Percorso immagine logo .png
 
@@ -59,7 +58,6 @@ sudo wifiphisher -p wind
 Always show details
 
 ├── genera_template_wifiphisher_v2.py          # Generatore principale
-├── captive_http_responder.py (opzionale)      # Server HTTP 200 (per test)
 ├── README.md
 ├── LICENSE
 └── .gitignore
