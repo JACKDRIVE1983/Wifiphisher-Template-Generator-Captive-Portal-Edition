@@ -41,6 +41,7 @@ Always show details
 1. Esegui lo script:
 
 ```bash
+chmod +x genera_template_wifiphisher_v2.py
 sudo python3 genera_template_wifiphisher_v2.py
 
     Inserisci:
